@@ -1,5 +1,7 @@
 async = require 'async'
 jsdom = require 'jsdom'
+jQuery = require 'jquery'
+
 module.exports = class htmlmagick
   $:null
   magicks:null
@@ -14,11 +16,14 @@ module.exports = class htmlmagick
   exec:(html,callback)->
     document = jsdom.jsdom html
     window = document.parentWindow
-    doMagick = (html,magick,next)=> magick.call window,html,(error,html)->
-      if html instanceof String or html is ''
-        next error,html
-      else
-        next error,[document.doctype.toString(),document.documentElement.outerHTML].join '\n'
-      
+    jQuery window
+
+    doMagick = (html,magick,next)->
+      magick.call window,html,(error,html)->
+        if html instanceof String or html is ''
+          next error,html
+        else
+          next error,[document.doctype.toString(),document.documentElement.outerHTML].join '\n'
+    
     async.reduce @magicks,html,doMagick,callback
     return
